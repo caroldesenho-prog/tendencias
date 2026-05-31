@@ -1,0 +1,420 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root { --bg:#0a0c10; --text:#e8e6e0; --muted:rgba(232,230,224,0.45); }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);}
+  .wrap{width:100%;max-width:1100px;margin:0 auto;height:100vh;display:flex;flex-direction:column;}
+  header{padding:10px 24px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid rgba(255,255,255,0.07);flex-shrink:0;}
+  .title-block h1{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
+  .title-block p{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:0.04em;}
+  .meta{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);text-align:right;line-height:1.6;}
+  .main{display:grid;grid-template-columns:185px 1fr 185px;flex:1;min-height:0;overflow:hidden;}
+  .radar-area{position:relative;display:flex;align-items:center;justify-content:center;padding:4px;overflow:hidden;}
+  svg.radar{width:100%;height:100%;max-height:100%;}
+  .sidebar{border-left:0.5px solid rgba(255,255,255,0.07);padding:10px 12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
+  .sidebar::-webkit-scrollbar{width:3px;}
+  .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+  .cat-label{font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin:7px 0 2px;font-family:'Space Mono',monospace;}
+  .cat-label:first-child{margin-top:0;}
+  .node-item{display:flex;align-items:flex-start;gap:6px;padding:4px 6px;border-radius:4px;cursor:pointer;transition:background 0.15s;}
+  .node-item:hover,.node-item.active{background:rgba(255,255,255,0.06);}
+  .node-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+  .node-text{font-size:10px;color:var(--text);line-height:1.35;}
+  .node-sub{font-size:8.5px;color:var(--muted);margin-top:1px;line-height:1.2;}
+  .detail-panel{border-right:0.5px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;overflow:hidden;}
+  .detail-content{padding:14px 12px;flex:1;overflow-y:auto;}
+  .detail-content::-webkit-scrollbar{width:3px;}
+  .detail-content::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+  .detail-placeholder{font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;line-height:1.8;opacity:0.5;}
+  .detail-title{font-size:11px;font-weight:600;margin-bottom:3px;line-height:1.4;}
+  .detail-meta{font-size:8.5px;color:var(--muted);margin-bottom:8px;font-family:'Space Mono',monospace;}
+  .detail-ring-badge{display:inline-block;font-size:7.5px;font-family:'Space Mono',monospace;letter-spacing:0.08em;padding:2px 7px;border-radius:20px;margin-bottom:10px;text-transform:uppercase;}
+  .detail-desc{font-size:10px;color:rgba(232,230,224,0.68);line-height:1.55;}
+  .legend{padding:7px 24px;display:flex;gap:18px;border-top:0.5px solid rgba(255,255,255,0.07);flex-shrink:0;flex-wrap:wrap;align-items:center;}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--muted);}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="title-block">
+      <h1>Radar de Tendências — Construção Civil</h1>
+      <p>Materiais · Software · Energia · Revestimentos · Horizonte 2024–2040</p>
+    </div>
+    <div class="meta"><div>Análise setorial</div><div>2024 → 2040</div></div>
+  </header>
+
+  <div class="main">
+    <div class="detail-panel">
+      <div class="detail-content" id="tooltip">
+        <p class="detail-placeholder">Clique em<br>um item<br>para ver<br>detalhes</p>
+      </div>
+    </div>
+
+    <div class="radar-area">
+      <!-- viewBox aumentado para acomodar labels fora do círculo -->
+      <svg class="radar" viewBox="0 0 660 660" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#161b26"/><stop offset="100%" stop-color="#0a0c10"/>
+          </radialGradient>
+          <filter id="glowSoft" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="4" result="b1"/>
+            <feGaussianBlur stdDeviation="9" result="b2"/>
+            <feMerge><feMergeNode in="b2"/><feMergeNode in="b1"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glowMed" x="-150%" y="-150%" width="400%" height="400%">
+            <feGaussianBlur stdDeviation="5" result="b1"/>
+            <feGaussianBlur stdDeviation="13" result="b2"/>
+            <feGaussianBlur stdDeviation="22" result="b3"/>
+            <feMerge><feMergeNode in="b3"/><feMergeNode in="b2"/><feMergeNode in="b1"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glowStrong" x="-250%" y="-250%" width="600%" height="600%">
+            <feGaussianBlur stdDeviation="4"  result="b1"/>
+            <feGaussianBlur stdDeviation="11" result="b2"/>
+            <feGaussianBlur stdDeviation="24" result="b3"/>
+            <feGaussianBlur stdDeviation="42" result="b4"/>
+            <feMerge><feMergeNode in="b4"/><feMergeNode in="b3"/><feMergeNode in="b2"/><feMergeNode in="b1"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="textGlow" x="-20%" y="-60%" width="140%" height="220%">
+            <feGaussianBlur stdDeviation="2.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- cx=330 cy=330 — centro do viewBox 660×660 -->
+
+        <!-- Fundo -->
+        <circle cx="330" cy="330" r="260" fill="url(#bgGrad)"/>
+
+        <!-- Anéis: emergente=75, em adoção=148, consolidado=225 -->
+        <circle cx="330" cy="330" r="75"  fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/>
+        <circle cx="330" cy="330" r="148" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+        <circle cx="330" cy="330" r="190" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.6" stroke-dasharray="2,5"/>
+        <circle cx="330" cy="330" r="225" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.4"/>
+
+        <!-- Spokes (boundaries: 240°,300°,0°,60°,120°,180°) -->
+        <!-- cx=330,cy=330; 240°:(217.5,135.1) 300°:(442.5,135.1) 0°:(555,330) 60°:(442.5,524.9) 120°:(217.5,524.9) 180°:(105,330) -->
+        <line x1="330" y1="330" x2="217.5" y2="135.1" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+        <line x1="330" y1="330" x2="442.5" y2="135.1" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+        <line x1="330" y1="330" x2="555.0" y2="330.0" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+        <line x1="330" y1="330" x2="442.5" y2="524.9" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+        <line x1="330" y1="330" x2="217.5" y2="524.9" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+        <line x1="330" y1="330" x2="105.0" y2="330.0" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+
+        <!-- Ring labels: Emergente entre Termocrômicos e Aerogel -->
+        <text x="243" y="336" fill="rgba(255,255,255,0.55)" font-size="9" font-family="Space Mono,monospace" font-weight="700" filter="url(#textGlow)" text-anchor="middle">Emergente</text>
+        <text x="338" y="186" fill="rgba(255,255,255,0.65)" font-size="9" font-family="Space Mono,monospace" font-weight="700" filter="url(#textGlow)">Em adoção</text>
+        <text x="368" y="110" fill="rgba(255,255,255,0.75)" font-size="9" font-family="Space Mono,monospace" font-weight="700" filter="url(#textGlow)">Consolidado</text>
+
+        <!-- Sector backgrounds -->
+        <!-- Bio 240°→300° -->   <path d="M330,330 L217.5,135.1 A225,225 0 0,1 442.5,135.1 Z" fill="rgba(199,91,58,0.06)"/>
+        <!-- Ener 300°→0° -->    <path d="M330,330 L442.5,135.1 A225,225 0 0,1 555.0,330.0 Z" fill="rgba(212,197,58,0.06)"/>
+        <!-- SW 0°→60° -->       <path d="M330,330 L555.0,330.0 A225,225 0 0,1 442.5,524.9 Z" fill="rgba(74,143,212,0.06)"/>
+        <!-- BIM 60°→120° -->    <path d="M330,330 L442.5,524.9 A225,225 0 0,1 217.5,524.9 Z" fill="rgba(61,184,138,0.06)"/>
+        <!-- Adv 120°→180° -->   <path d="M330,330 L217.5,524.9 A225,225 0 0,1 105.0,330.0 Z" fill="rgba(196,147,63,0.06)"/>
+        <!-- Rev 180°→240° -->   <path d="M330,330 L105.0,330.0 A225,225 0 0,1 217.5,135.1 Z" fill="rgba(138,107,191,0.06)"/>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- SECTOR LABELS — FORA do radar (r≈252, offset para legível) -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- BIOMATERIAIS: 270° topo → (330, 78-30=48 → ajuste para 330,55) -->
+        <text x="330" y="55" fill="#c75b3a" font-size="9.5" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="middle" letter-spacing="0.08em">BIOMATERIAIS</text>
+
+        <!-- EFIC. ENERGÉTICA: 330° → direita-superior → 2 linhas -->
+        <text x="548" y="185" fill="#c8bb2a" font-size="9" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="middle" letter-spacing="0.07em">EFICIÊNCIA</text>
+        <text x="548" y="197" fill="#c8bb2a" font-size="9" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="middle" letter-spacing="0.07em">ENERGÉTICA</text>
+
+        <!-- SOFTWARE / IA: bem à direita, abaixo dos nós -->
+        <text x="620" y="440" fill="#4a8fd4" font-size="9.5" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="middle" letter-spacing="0.07em">SOFTWARE</text>
+        <text x="620" y="452" fill="#4a8fd4" font-size="9.5" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="middle" letter-spacing="0.07em">E IA</text>
+
+        <!-- GESTÃO / BIM: 90° baixo → (330, 605) -->
+        <text x="330" y="608" fill="#3db88a" font-size="9.5" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="middle" letter-spacing="0.07em">GESTÃO / BIM</text>
+
+        <!-- MAT. AVANÇADOS: mais à direita da corda -->
+        <text x="50" y="500" fill="#c4933f" font-size="9" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="start" letter-spacing="0.07em">MATERIAIS</text>
+        <text x="50" y="512" fill="#c4933f" font-size="9" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="start" letter-spacing="0.07em">AVANÇADOS</text>
+
+        <!-- REVESTIMENTOS REATIVOS: 210° → esquerda-superior → 2 linhas -->
+        <text x="112" y="185" fill="#8a6bbf" font-size="9" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="middle" letter-spacing="0.07em">REVESTIMENTOS</text>
+        <text x="112" y="197" fill="#8a6bbf" font-size="9" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="middle" letter-spacing="0.07em">REATIVOS</text>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- NODES — sobre os spokes, textos sem sobreposição          -->
+        <!-- cx=330 cy=330; rings c=225 a=148 e=75                     -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+
+        <!-- ── BIOMATERIAIS (coral) ── spoke 270° ─────────────────── -->
+        <!-- [0] CLT/Bambu CONSOLIDADO  270° r=225 → (330,105) — texto à ESQUERDA da bolinha -->
+        <g class="node-dot-svg" data-id="0" style="cursor:pointer">
+          <circle cx="330" cy="105" r="13" fill="#c75b3a" opacity="0.2" filter="url(#glowStrong)"/>
+          <circle cx="330" cy="105" r="9"  fill="#c75b3a" opacity="0.9" filter="url(#glowStrong)"/>
+          <circle cx="330" cy="105" r="5"  fill="#ff9070"/>
+          <text x="316" y="102" fill="#e07050" font-size="8.5" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="end">CLT / Bambu</text>
+          <text x="316" y="112" fill="#e07050" font-size="7"   font-family="DM Sans,sans-serif" opacity="0.8" text-anchor="end">(Madeira</text>
+          <text x="316" y="121" fill="#e07050" font-size="7"   font-family="DM Sans,sans-serif" opacity="0.8" text-anchor="end">Laminada Cruzada)</text>
+        </g>
+        <!-- [1] Micélio EMERGENTE  243° r=75 — texto em 2 linhas -->
+        <g class="node-dot-svg" data-id="1" style="cursor:pointer">
+          <circle cx="296.0" cy="263.2" r="7" fill="#c75b3a" opacity="0.15" filter="url(#glowSoft)"/>
+          <circle cx="296.0" cy="263.2" r="5" fill="#c75b3a" opacity="0.75" filter="url(#glowSoft)"/>
+          <circle cx="296.0" cy="263.2" r="3" fill="#e07055"/>
+          <text x="296.0" y="246" fill="rgba(199,91,58,0.9)" font-size="8" font-family="DM Sans,sans-serif" text-anchor="middle">Compósito</text>
+          <text x="296.0" y="256" fill="rgba(199,91,58,0.9)" font-size="8" font-family="DM Sans,sans-serif" text-anchor="middle">de Micélio</text>
+        </g>
+        <!-- [2] Tijolos EMERGENTE  290° r=75 — texto em 3 linhas -->
+        <g class="node-dot-svg" data-id="2" style="cursor:pointer">
+          <circle cx="355.7" cy="259.5" r="7" fill="#c75b3a" opacity="0.14" filter="url(#glowSoft)"/>
+          <circle cx="355.7" cy="259.5" r="5" fill="#c75b3a" opacity="0.72" filter="url(#glowSoft)"/>
+          <circle cx="355.7" cy="259.5" r="3" fill="#e07055"/>
+          <text x="355.7" y="238" fill="rgba(199,91,58,0.88)" font-size="8" font-family="DM Sans,sans-serif" text-anchor="middle">Tijolos</text>
+          <text x="355.7" y="248" fill="rgba(199,91,58,0.88)" font-size="8" font-family="DM Sans,sans-serif" text-anchor="middle">Plástico</text>
+          <text x="355.7" y="258" fill="rgba(199,91,58,0.88)" font-size="8" font-family="DM Sans,sans-serif" text-anchor="middle">Reciclado</text>
+        </g>
+
+        <!-- ── EFICIÊNCIA ENERGÉTICA (amarelo) ── spoke 330° ───────── -->
+        <!-- [17] BIPV CONSOLIDADO  330° r=225 → (524.9,217.5) — exatamente sobre o spoke -->
+        <g class="node-dot-svg" data-id="17" style="cursor:pointer">
+          <circle cx="524.9" cy="217.5" r="13" fill="#c8bb2a" opacity="0.2" filter="url(#glowStrong)"/>
+          <circle cx="524.9" cy="217.5" r="9"  fill="#c8bb2a" opacity="0.9" filter="url(#glowStrong)"/>
+          <circle cx="524.9" cy="217.5" r="5"  fill="#f0e060"/>
+          <text x="538" y="213" fill="#d4c530" font-size="8.5" font-family="DM Sans,sans-serif" font-weight="700">BIPV —</text>
+          <text x="538" y="223" fill="#d4c530" font-size="7"   font-family="DM Sans,sans-serif" opacity="0.85">Solar Integrado</text>
+          <text x="538" y="233" fill="#d4c530" font-size="7"   font-family="DM Sans,sans-serif" opacity="0.85">à Fachada</text>
+        </g>
+        <!-- [18] BESS EM ADOÇÃO  320° r=148 → (443.4,234.9) -->
+        <g class="node-dot-svg" data-id="18" style="cursor:pointer">
+          <circle cx="443.4" cy="234.9" r="10" fill="#c8bb2a" opacity="0.16" filter="url(#glowMed)"/>
+          <circle cx="443.4" cy="234.9" r="7"  fill="#c8bb2a" opacity="0.85" filter="url(#glowMed)"/>
+          <circle cx="443.4" cy="234.9" r="4"  fill="#e8d850"/>
+          <text x="454" y="227" fill="#c8bb2a" font-size="8" font-family="DM Sans,sans-serif" font-weight="600">BESS —</text>
+          <text x="454" y="237" fill="#c8bb2a" font-size="8" font-family="DM Sans,sans-serif" font-weight="600">Armazenamento</text>
+          <text x="454" y="247" fill="#c8bb2a" font-size="8" font-family="DM Sans,sans-serif" font-weight="600">de Energia</text>
+        </g>
+        <!-- [19] Janelas Eletrocrômicas EM ADOÇÃO  340° r=148 → (469.1,279.4) -->
+        <g class="node-dot-svg" data-id="19" style="cursor:pointer">
+          <circle cx="469.1" cy="279.4" r="10" fill="#c8bb2a" opacity="0.15" filter="url(#glowMed)"/>
+          <circle cx="469.1" cy="279.4" r="7"  fill="#c8bb2a" opacity="0.82" filter="url(#glowMed)"/>
+          <circle cx="469.1" cy="279.4" r="4"  fill="#e8d850"/>
+          <text x="480" y="273" fill="#c8bb2a" font-size="8" font-family="DM Sans,sans-serif">Janelas</text>
+          <text x="480" y="283" fill="#c8bb2a" font-size="8" font-family="DM Sans,sans-serif">Eletrocrômicas</text>
+        </g>
+        <!-- [20] Piezo EMERGENTE  317° r=75 → (384.9,278.9) — texto em 2 linhas -->
+        <g class="node-dot-svg" data-id="20" style="cursor:pointer">
+          <circle cx="384.9" cy="278.9" r="7" fill="#c8bb2a" opacity="0.14" filter="url(#glowSoft)"/>
+          <circle cx="384.9" cy="278.9" r="5" fill="#c8bb2a" opacity="0.72" filter="url(#glowSoft)"/>
+          <circle cx="384.9" cy="278.9" r="3" fill="#e0d040"/>
+          <text x="394" y="272" fill="rgba(200,187,42,0.9)" font-size="8" font-family="DM Sans,sans-serif">Concreto</text>
+          <text x="394" y="282" fill="rgba(200,187,42,0.9)" font-size="8" font-family="DM Sans,sans-serif">Piezoelétrico</text>
+        </g>
+        <!-- [21] Termogerad. EMERGENTE  343° r=75 → (401.7,308.1) -->
+        <g class="node-dot-svg" data-id="21" style="cursor:pointer">
+          <circle cx="401.7" cy="308.1" r="7" fill="#c8bb2a" opacity="0.12" filter="url(#glowSoft)"/>
+          <circle cx="401.7" cy="308.1" r="5" fill="#c8bb2a" opacity="0.68" filter="url(#glowSoft)"/>
+          <circle cx="401.7" cy="308.1" r="3" fill="#e0d040"/>
+          <text x="412" y="302" fill="rgba(200,187,42,0.84)" font-size="8" font-family="DM Sans,sans-serif" text-anchor="start">Fachadas</text>
+          <text x="412" y="312" fill="rgba(200,187,42,0.84)" font-size="8" font-family="DM Sans,sans-serif" text-anchor="start">Termogeradoras</text>
+        </g>
+
+        <!-- ── SOFTWARE / IA (azul) ── spoke 30° ──────────────────── -->
+        <!-- [3] Gêmeo Digital CONSOLIDADO  22° r=225 → (538.6,414.3) — texto à ESQUERDA -->
+        <g class="node-dot-svg" data-id="3" style="cursor:pointer">
+          <circle cx="538.6" cy="414.3" r="13" fill="#4a8fd4" opacity="0.2" filter="url(#glowStrong)"/>
+          <circle cx="538.6" cy="414.3" r="9"  fill="#4a8fd4" opacity="0.9" filter="url(#glowStrong)"/>
+          <circle cx="538.6" cy="414.3" r="5"  fill="#90ccff"/>
+          <text x="524" y="410" fill="#6ab0e8" font-size="8.5" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="end">Gêmeo Digital</text>
+        </g>
+        <!-- [4] Design Gen IA CONSOLIDADO  38° r=225 → (507.3,468.5) — texto à ESQUERDA -->
+        <g class="node-dot-svg" data-id="4" style="cursor:pointer">
+          <circle cx="507.3" cy="468.5" r="13" fill="#4a8fd4" opacity="0.18" filter="url(#glowStrong)"/>
+          <circle cx="507.3" cy="468.5" r="9"  fill="#4a8fd4" opacity="0.88" filter="url(#glowStrong)"/>
+          <circle cx="507.3" cy="468.5" r="5"  fill="#90ccff"/>
+          <text x="493" y="464" fill="#6ab0e8" font-size="8.5" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="end">Design Gen. IA</text>
+        </g>
+        <!-- [5] Robótica EMERGENTE  30° r=75 → (395,367.5) -->
+        <g class="node-dot-svg" data-id="5" style="cursor:pointer">
+          <circle cx="395" cy="367.5" r="7" fill="#4a8fd4" opacity="0.15" filter="url(#glowSoft)"/>
+          <circle cx="395" cy="367.5" r="5" fill="#4a8fd4" opacity="0.75" filter="url(#glowSoft)"/>
+          <circle cx="395" cy="367.5" r="3" fill="#80bbee"/>
+          <text x="404" y="363" fill="rgba(74,143,212,0.92)" font-size="8" font-family="DM Sans,sans-serif">Robótica Enxame</text>
+        </g>
+
+        <!-- ── GESTÃO / BIM (verde) ── spoke 90° ──────────────────── -->
+        <!-- [6] BIM360 CONSOLIDADO  90° r=225 → (330, 555) -->
+        <g class="node-dot-svg" data-id="6" style="cursor:pointer">
+          <circle cx="330" cy="555" r="13" fill="#3db88a" opacity="0.2" filter="url(#glowStrong)"/>
+          <circle cx="330" cy="555" r="9"  fill="#3db88a" opacity="0.9" filter="url(#glowStrong)"/>
+          <circle cx="330" cy="555" r="5"  fill="#80eec8"/>
+          <text x="344" y="549" fill="#5dd4a8" font-size="8.5" font-family="DM Sans,sans-serif" font-weight="700">BIM360 / Cloud</text>
+          <text x="344" y="559" fill="#5dd4a8" font-size="7" font-family="DM Sans,sans-serif" opacity="0.8">(Modelagem de</text>
+          <text x="344" y="569" fill="#5dd4a8" font-size="7" font-family="DM Sans,sans-serif" opacity="0.8">Informação)</text>
+        </g>
+        <!-- [7] AR EMERGENTE  78° r=75 → (345.6,403.4) -->
+        <g class="node-dot-svg" data-id="7" style="cursor:pointer">
+          <circle cx="345.6" cy="403.4" r="7" fill="#3db88a" opacity="0.15" filter="url(#glowSoft)"/>
+          <circle cx="345.6" cy="403.4" r="5" fill="#3db88a" opacity="0.75" filter="url(#glowSoft)"/>
+          <circle cx="345.6" cy="403.4" r="3" fill="#70ddb0"/>
+          <text x="354" y="399" fill="rgba(61,184,138,0.92)" font-size="8" font-family="DM Sans,sans-serif">AR em Obra</text>
+          <text x="354" y="409" fill="rgba(61,184,138,0.7)"  font-size="7" font-family="DM Sans,sans-serif">(Realidade Aumentada)</text>
+        </g>
+        <!-- [8] Blockchain EMERGENTE  102° r=75 → (314.4,403.4) -->
+        <g class="node-dot-svg" data-id="8" style="cursor:pointer">
+          <circle cx="314.4" cy="403.4" r="7" fill="#3db88a" opacity="0.13" filter="url(#glowSoft)"/>
+          <circle cx="314.4" cy="403.4" r="5" fill="#3db88a" opacity="0.70" filter="url(#glowSoft)"/>
+          <circle cx="314.4" cy="403.4" r="3" fill="#70ddb0"/>
+          <text x="256" y="418" fill="rgba(61,184,138,0.88)" font-size="8" font-family="DM Sans,sans-serif">Blockchain Supply</text>
+        </g>
+
+        <!-- ── MAT. AVANÇADOS (âmbar) ── spoke 150° ───────────────── -->
+        <!-- [9] CFRP CONSOLIDADO  140° r=225 → (157.6,474.6) — texto próximo à bolinha -->
+        <g class="node-dot-svg" data-id="9" style="cursor:pointer">
+          <circle cx="157.6" cy="474.6" r="13" fill="#c4933f" opacity="0.2" filter="url(#glowStrong)"/>
+          <circle cx="157.6" cy="474.6" r="9"  fill="#c4933f" opacity="0.9" filter="url(#glowStrong)"/>
+          <circle cx="157.6" cy="474.6" r="5"  fill="#ffc86a"/>
+          <text x="143" y="470" fill="#e0aa55" font-size="8.5" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="end">CFRP / Nano</text>
+          <text x="143" y="480" fill="#e0aa55" font-size="7"   font-family="DM Sans,sans-serif" opacity="0.8" text-anchor="end">(Fibra de Carbono)</text>
+        </g>
+        <!-- [11] UHPC CONSOLIDADO  160° r=225 → (119,407) — texto mais à esquerda -->
+        <g class="node-dot-svg" data-id="11" style="cursor:pointer">
+          <circle cx="119" cy="407" r="13" fill="#c4933f" opacity="0.18" filter="url(#glowStrong)"/>
+          <circle cx="119" cy="407" r="9"  fill="#c4933f" opacity="0.9" filter="url(#glowStrong)"/>
+          <circle cx="119" cy="407" r="5"  fill="#ffc86a"/>
+          <text x="104" y="401" fill="#e0aa55" font-size="8.5" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="end">UHPC</text>
+          <text x="104" y="412" fill="#e0aa55" font-size="7"   font-family="DM Sans,sans-serif" opacity="0.8" text-anchor="end">(Concreto</text>
+          <text x="104" y="422" fill="#e0aa55" font-size="7"   font-family="DM Sans,sans-serif" opacity="0.8" text-anchor="end">Ultra-Alta Perf.)</text>
+        </g>
+        <!-- [10] Concreto Autocura EM ADOÇÃO  150° r=148 → (201.8,404.0) — texto ACIMA -->
+        <g class="node-dot-svg" data-id="10" style="cursor:pointer">
+          <circle cx="201.8" cy="404.0" r="10" fill="#c4933f" opacity="0.16" filter="url(#glowMed)"/>
+          <circle cx="201.8" cy="404.0" r="7"  fill="#c4933f" opacity="0.85" filter="url(#glowMed)"/>
+          <circle cx="201.8" cy="404.0" r="4"  fill="#e8b060"/>
+          <text x="201.8" y="390" fill="#d4a045" font-size="8" font-family="DM Sans,sans-serif" font-weight="600" text-anchor="middle">Concreto</text>
+          <text x="201.8" y="400" fill="#d4a045" font-size="8" font-family="DM Sans,sans-serif" font-weight="600" text-anchor="middle">Autocurativo</text>
+        </g>
+        <!-- [12] Aerogel EMERGENTE  150° r=75 → (265,367.5) — texto próximo à bolinha -->
+        <g class="node-dot-svg" data-id="12" style="cursor:pointer">
+          <circle cx="265" cy="367.5" r="7" fill="#c4933f" opacity="0.14" filter="url(#glowSoft)"/>
+          <circle cx="265" cy="367.5" r="5" fill="#c4933f" opacity="0.72" filter="url(#glowSoft)"/>
+          <circle cx="265" cy="367.5" r="3" fill="#e0aa55"/>
+          <text x="251" y="363" fill="rgba(196,147,63,0.9)" font-size="8" font-family="DM Sans,sans-serif" text-anchor="end">Aerogel Isolante</text>
+        </g>
+
+        <!-- ── REVESTIMENTOS REATIVOS (roxo) ── spoke 210° ────────── -->
+        <!-- [13] Autorreparadores CONSOLIDADO  210° r=225 → (135.1,217.5) — sobre o spoke -->
+        <g class="node-dot-svg" data-id="13" style="cursor:pointer">
+          <circle cx="135.1" cy="217.5" r="13" fill="#8a6bbf" opacity="0.2" filter="url(#glowStrong)"/>
+          <circle cx="135.1" cy="217.5" r="9"  fill="#8a6bbf" opacity="0.9" filter="url(#glowStrong)"/>
+          <circle cx="135.1" cy="217.5" r="5"  fill="#c0a0ff"/>
+          <text x="121" y="213" fill="#a888d8" font-size="8.5" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="end">Autorreparadores</text>
+        </g>
+        <!-- [14] Hidrófobos EM ADOÇÃO  200° r=148 → (190.9,279.4) -->
+        <g class="node-dot-svg" data-id="14" style="cursor:pointer">
+          <circle cx="190.9" cy="279.4" r="10" fill="#8a6bbf" opacity="0.16" filter="url(#glowMed)"/>
+          <circle cx="190.9" cy="279.4" r="7"  fill="#8a6bbf" opacity="0.85" filter="url(#glowMed)"/>
+          <circle cx="190.9" cy="279.4" r="4"  fill="#b090e0"/>
+          <text x="90"   y="273" fill="#9a80cf" font-size="8" font-family="DM Sans,sans-serif" font-weight="600">Hidrófobos (Lotus)</text>
+        </g>
+        <!-- [15] Termocrômicos EMERGENTE  196° r=75 → (257.9,309.3) -->
+        <g class="node-dot-svg" data-id="15" style="cursor:pointer">
+          <circle cx="257.9" cy="309.3" r="7" fill="#8a6bbf" opacity="0.15" filter="url(#glowSoft)"/>
+          <circle cx="257.9" cy="309.3" r="5" fill="#8a6bbf" opacity="0.75" filter="url(#glowSoft)"/>
+          <circle cx="257.9" cy="309.3" r="3" fill="#b090e0"/>
+          <text x="172" y="304" fill="rgba(138,107,191,0.92)" font-size="8" font-family="DM Sans,sans-serif">Termocrômicos</text>
+        </g>
+        <!-- [16] Grafeno EMERGENTE  224° r=75 → (276.0,277.9) — texto próximo à bolinha -->
+        <g class="node-dot-svg" data-id="16" style="cursor:pointer">
+          <circle cx="276.0" cy="277.9" r="7" fill="#8a6bbf" opacity="0.13" filter="url(#glowSoft)"/>
+          <circle cx="276.0" cy="277.9" r="5" fill="#8a6bbf" opacity="0.70" filter="url(#glowSoft)"/>
+          <circle cx="276.0" cy="277.9" r="3" fill="#b090e0"/>
+          <text x="262" y="273" fill="rgba(138,107,191,0.86)" font-size="8" font-family="DM Sans,sans-serif" text-anchor="end">Grafeno</text>
+        </g>
+
+        <!-- Centro -->
+        <text x="330" y="322" fill="rgba(255,255,255,0.9)" font-size="10" font-family="Space Mono,monospace" text-anchor="middle" font-weight="700" letter-spacing="0.06em">CONSTRUÇÃO</text>
+        <text x="330" y="336" fill="rgba(255,255,255,0.9)" font-size="10" font-family="Space Mono,monospace" text-anchor="middle" font-weight="700" letter-spacing="0.06em">CIVIL</text>
+        <text x="330" y="350" fill="rgba(255,255,255,0.32)" font-size="8" font-family="Space Mono,monospace" text-anchor="middle" letter-spacing="0.04em">2024–2040</text>
+      </svg>
+    </div>
+
+    <!-- DIREITA: lista -->
+    <div class="sidebar">
+      <div class="cat-label">Biomateriais</div>
+      <div class="node-item" data-id="0"  onclick="selectNode(0)"><span class="node-dot" style="background:#c75b3a"></span><div class="node-text">CLT / Bambu<div class="node-sub">Consolidado</div></div></div>
+      <div class="node-item" data-id="1"  onclick="selectNode(1)"><span class="node-dot" style="background:#c75b3a;opacity:.52"></span><div class="node-text">Compósito de Micélio<div class="node-sub">Emergente</div></div></div>
+      <div class="node-item" data-id="2"  onclick="selectNode(2)"><span class="node-dot" style="background:#c75b3a;opacity:.45"></span><div class="node-text">Tijolos Plástico Rec.<div class="node-sub">Emergente</div></div></div>
+      <div class="cat-label">Eficiência Energética</div>
+      <div class="node-item" data-id="17" onclick="selectNode(17)"><span class="node-dot" style="background:#c8bb2a"></span><div class="node-text">BIPV<div class="node-sub">Consolidado</div></div></div>
+      <div class="node-item" data-id="18" onclick="selectNode(18)"><span class="node-dot" style="background:#c8bb2a;opacity:.75"></span><div class="node-text">BESS<div class="node-sub">Em adoção</div></div></div>
+      <div class="node-item" data-id="19" onclick="selectNode(19)"><span class="node-dot" style="background:#c8bb2a;opacity:.7"></span><div class="node-text">Janelas Eletrocrômicas<div class="node-sub">Em adoção</div></div></div>
+      <div class="node-item" data-id="20" onclick="selectNode(20)"><span class="node-dot" style="background:#c8bb2a;opacity:.45"></span><div class="node-text">Concreto Piezoelétrico<div class="node-sub">Emergente</div></div></div>
+      <div class="node-item" data-id="21" onclick="selectNode(21)"><span class="node-dot" style="background:#c8bb2a;opacity:.4"></span><div class="node-text">Fach. Termogeradoras<div class="node-sub">Emergente</div></div></div>
+      <div class="cat-label">Software / IA</div>
+      <div class="node-item" data-id="3"  onclick="selectNode(3)"><span class="node-dot" style="background:#4a8fd4"></span><div class="node-text">Gêmeo Digital<div class="node-sub">Consolidado</div></div></div>
+      <div class="node-item" data-id="4"  onclick="selectNode(4)"><span class="node-dot" style="background:#4a8fd4"></span><div class="node-text">Design Generativo IA<div class="node-sub">Consolidado</div></div></div>
+      <div class="node-item" data-id="5"  onclick="selectNode(5)"><span class="node-dot" style="background:#4a8fd4;opacity:.45"></span><div class="node-text">Robótica em Enxame<div class="node-sub">Emergente</div></div></div>
+      <div class="cat-label">Gestão / BIM</div>
+      <div class="node-item" data-id="6"  onclick="selectNode(6)"><span class="node-dot" style="background:#3db88a"></span><div class="node-text">BIM360 / Cloud<div class="node-sub">Consolidado</div></div></div>
+      <div class="node-item" data-id="7"  onclick="selectNode(7)"><span class="node-dot" style="background:#3db88a;opacity:.45"></span><div class="node-text">AR em Obra<div class="node-sub">Emergente</div></div></div>
+      <div class="node-item" data-id="8"  onclick="selectNode(8)"><span class="node-dot" style="background:#3db88a;opacity:.4"></span><div class="node-text">Blockchain Supply<div class="node-sub">Emergente</div></div></div>
+      <div class="cat-label">Mat. Avançados</div>
+      <div class="node-item" data-id="9"  onclick="selectNode(9)"><span class="node-dot" style="background:#c4933f"></span><div class="node-text">CFRP / Nano<div class="node-sub">Consolidado</div></div></div>
+      <div class="node-item" data-id="10" onclick="selectNode(10)"><span class="node-dot" style="background:#c4933f;opacity:.7"></span><div class="node-text">Concreto Autocura<div class="node-sub">Em adoção</div></div></div>
+      <div class="node-item" data-id="11" onclick="selectNode(11)"><span class="node-dot" style="background:#c4933f"></span><div class="node-text">UHPC<div class="node-sub">Consolidado</div></div></div>
+      <div class="node-item" data-id="12" onclick="selectNode(12)"><span class="node-dot" style="background:#c4933f;opacity:.45"></span><div class="node-text">Aerogel Isolante<div class="node-sub">Emergente</div></div></div>
+      <div class="cat-label">Revestimentos Reativos</div>
+      <div class="node-item" data-id="13" onclick="selectNode(13)"><span class="node-dot" style="background:#8a6bbf"></span><div class="node-text">Autorreparadores<div class="node-sub">Consolidado</div></div></div>
+      <div class="node-item" data-id="14" onclick="selectNode(14)"><span class="node-dot" style="background:#8a6bbf;opacity:.7"></span><div class="node-text">Hidrófobos (Lotus)<div class="node-sub">Em adoção</div></div></div>
+      <div class="node-item" data-id="15" onclick="selectNode(15)"><span class="node-dot" style="background:#8a6bbf;opacity:.5"></span><div class="node-text">Termocrômicos<div class="node-sub">Emergente</div></div></div>
+      <div class="node-item" data-id="16" onclick="selectNode(16)"><span class="node-dot" style="background:#8a6bbf;opacity:.42"></span><div class="node-text">Grafeno<div class="node-sub">Emergente</div></div></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div style="width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 0 6px 3px rgba(255,255,255,0.5),0 0 18px 6px rgba(255,255,255,0.2)"></div>Consolidado</div>
+    <div class="legend-item"><div style="width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.85);box-shadow:0 0 5px 2px rgba(255,255,255,0.35),0 0 12px 4px rgba(255,255,255,0.15)"></div>Em adoção</div>
+    <div class="legend-item"><div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.6);box-shadow:0 0 4px 2px rgba(255,255,255,0.2)"></div>Emergente</div>
+    <div class="legend-item" style="margin-left:auto;font-size:8.5px;opacity:.38;">Tamanho + brilho = maturidade</div>
+  </div>
+</div>
+
+<script>
+const data = [
+  {name:"CLT / Bambu estrutural",           cat:"Biomateriais",           ring:"Consolidado", color:"#c75b3a", desc:"Madeira Laminada Cruzada e bambu engenheirado como alternativa estrutural renovável com menor pegada de carbono. Adoção crescente em edifícios de múltiplos andares com normas e fornecedores estabelecidos."},
+  {name:"Compósito de Micélio",             cat:"Biomateriais",           ring:"Emergente",   color:"#c75b3a", desc:"Material à base de fungos com potencial para isolamento e vedação. Sem escala industrial nem normas técnicas para uso estrutural na construção civil. Produção ainda artesanal ou piloto."},
+  {name:"Tijolos Plástico Reciclado",       cat:"Biomateriais",           ring:"Emergente",   color:"#c75b3a", desc:"Tijolos moldados a partir de resíduos plásticos. Alta durabilidade potencial, mas sem normatização estrutural consolidada, baixa escala industrial e resistência do mercado formal."},
+  {name:"Gêmeo Digital",                    cat:"Software / IA",          ring:"Consolidado", color:"#4a8fd4", desc:"Réplicas digitais de edificações sincronizadas com sensores IoT em tempo real. Rastreiam desempenho de materiais, energia e saúde estrutural. Plataformas maduras e amplamente adotadas."},
+  {name:"Design Generativo IA",             cat:"Software / IA",          ring:"Consolidado", color:"#4a8fd4", desc:"Ferramentas como Autodesk Generative Design, Spacemaker e TestFit amplamente usadas em escritórios de arquitetura e engenharia. Consolidado pela maturidade comercial das plataformas."},
+  {name:"Robótica em Enxame",               cat:"Software / IA",          ring:"Emergente",   color:"#4a8fd4", desc:"Enxames de robôs autônomos em canteiro com inteligência coletiva para impressão 3D, alvenaria e montagem. Ainda majoritariamente em pesquisa acadêmica."},
+  {name:"BIM360 / Cloud",                   cat:"Gestão / BIM",           ring:"Consolidado", color:"#3db88a", desc:"Modelagem da Informação da Construção — plataformas como Procore, PlanGrid e BIM360 integram cronogramas, plantas e suprimentos em nuvem. Uso amplamente difundido no mercado global."},
+  {name:"AR em Obra",                       cat:"Gestão / BIM",           ring:"Emergente",   color:"#3db88a", desc:"Realidade Aumentada — headsets sobrepõem plantas 3D em campo. Custo alto, fragilidade em canteiro e baixa adoção real, especialmente no Brasil."},
+  {name:"Blockchain Supply",                cat:"Gestão / BIM",           ring:"Emergente",   color:"#3db88a", desc:"Rastreio de procedência e certificação de materiais via blockchain. Maduro em outras indústrias mas na construção civil ainda enfrenta fragmentação da cadeia e baixa digitalização."},
+  {name:"CFRP / Nano-compósitos",           cat:"Materiais Avançados",    ring:"Consolidado", color:"#c4933f", desc:"Polímero Reforçado com Fibra de Carbono — usado em retrofit de pontes, reforços sísmicos e edificações de alto padrão. Alta resistência e leveza com aplicação consolidada na engenharia."},
+  {name:"Concreto Autocurativo",            cat:"Materiais Avançados",    ring:"Em adoção",   color:"#c4933f", desc:"Concreto com bactérias ou microcápsulas que preenchem fissuras automaticamente, aumentando vida útil de infraestruturas e reduzindo custos de manutenção."},
+  {name:"UHPC — Concreto Ultra-Alta Perf.", cat:"Materiais Avançados",    ring:"Consolidado", color:"#c4933f", desc:"Concreto Ultra-Alta Performance — 20+ anos de uso em pontes e infraestrutura. Normas técnicas estabelecidas e fornecedores globais como Ductal (Lafarge) e BASF."},
+  {name:"Aerogel Isolante",                 cat:"Materiais Avançados",    ring:"Emergente",   color:"#c4933f", desc:"Isolamento térmico extraordinário em espessuras finas. Custo ainda proibitivo para edificações convencionais — aplicado principalmente em óleo & gás e aeroespacial."},
+  {name:"Autorreparadores",                 cat:"Revestimentos Reativos", ring:"Consolidado", color:"#8a6bbf", desc:"Microcápsulas químicas que se rompem ao detectar uma trinca e preenchem o dano autonomamente. Usados em defesa, aeroespacial e bens de luxo com fornecedores estabelecidos."},
+  {name:"Hidrófobos (Lotus)",               cat:"Revestimentos Reativos", ring:"Em adoção",   color:"#8a6bbf", desc:"Superfícies que imitam a folha de lótus — água e sujeira escorregam sem aderir. Reduzem manutenção de fachadas e já são especificados em projetos de arquitetura contemporânea."},
+  {name:"Termocrômicos",                    cat:"Revestimentos Reativos", ring:"Emergente",   color:"#8a6bbf", desc:"Revestimentos que mudam propriedades ópticas com a temperatura. Em fachadas de edificações ainda é pesquisa e protótipos — durabilidade, custo e normas são barreiras reais."},
+  {name:"Grafeno",                          cat:"Revestimentos Reativos", ring:"Emergente",   color:"#8a6bbf", desc:"Camadas ultrafinas condutivas com potencial para sensoriamento e dissipação térmica. Custo inviável em escala para construção civil — o item mais Emergente do radar."},
+  {name:"BIPV — Solar Integrado à Fachada", cat:"Eficiência Energética",  ring:"Consolidado", color:"#c8bb2a", desc:"Building Integrated Photovoltaics — painéis solares integrados à fachada ou telhado como elemento construtivo. Já é realidade em edifícios comerciais com queda de custo contínua."},
+  {name:"BESS — Armazenamento de Energia",  cat:"Eficiência Energética",  ring:"Em adoção",   color:"#c8bb2a", desc:"Battery Energy Storage System — baterias integradas ao edifício para gestão de pico e autonomia energética. Crescimento acelerado com a queda do custo do lítio e pressão por eficiência."},
+  {name:"Janelas Eletrocrômicas",           cat:"Eficiência Energética",  ring:"Em adoção",   color:"#c8bb2a", desc:"Vidros inteligentes que escurecem automaticamente conforme a incidência solar, reduzindo carga de ar-condicionado. Já disponíveis comercialmente mas ainda com custo elevado para escala."},
+  {name:"Concreto Piezoelétrico",           cat:"Eficiência Energética",  ring:"Emergente",   color:"#c8bb2a", desc:"Pisos e pavimentos que geram eletricidade a partir da pressão do tráfego de pessoas e veículos. Projetos-piloto em estações de metrô e aeroportos — sem adoção comercial na construção civil."},
+  {name:"Fachadas Termogeradoras",          cat:"Eficiência Energética",  ring:"Emergente",   color:"#c8bb2a", desc:"Revestimentos que convertem a diferença de temperatura entre interior e exterior do edifício em eletricidade via efeito Seebeck. Ainda em pesquisa — potencial enorme para climas como o do Brasil."},
+];
+
+function selectNode(id){
+  document.querySelectorAll('.node-item').forEach(el=>el.classList.remove('active'));
+  const item=document.querySelector(`.node-item[data-id='${id}']`);
+  if(item)item.classList.add('active');
+  const d=data[id];
+  document.getElementById('tooltip').innerHTML=`
+    <div class="detail-title" style="color:${d.color}">${d.name}</div>
+    <div class="detail-meta">${d.cat}</div>
+    <span class="detail-ring-badge" style="background:${d.color}22;color:${d.color};border:0.5px solid ${d.color}44">${d.ring}</span>
+    <div class="detail-desc">${d.desc}</div>`;
+}
+document.querySelectorAll('.node-dot-svg').forEach(el=>{
+  el.addEventListener('click',()=>selectNode(parseInt(el.dataset.id)));
+});
+</script>
